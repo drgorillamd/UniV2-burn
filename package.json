@@ -18,6 +18,7 @@
   "homepage": "https://github.com/drgorillamd/UniV2-burn#readme",
   "dependencies": {
     "@flashbots/ethers-provider-bundle": "^0.4.2",
+    "async": "^3.2.2",
     "dotenv": "^10.0.0",
     "ethers": "^5.5.1"
   }
