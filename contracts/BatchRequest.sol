@@ -13,20 +13,19 @@ interface IERC20 {
 }
 
 contract BatchRequest {
-    constructor(uint256 from, uint256 step) {
+    constructor(uint256 from, uint256 step, address factory) {
 
         uint256[] memory returnData = new uint256[](step);
 
         for(uint256 i = 0; i < step; i++) {
-            address curr = IFactory(address(0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f)).allPairs(from+i);
+            address curr = IFactory(factory).allPairs(from+i);
             returnData[i] = IERC20(curr).balanceOf(curr);
-            console.log(returnData[i]);
         }
 
         bytes memory data = abi.encode(returnData);
 
         assembly {
-            return(returnData, 96)
+            return(add(data, 64), add(mul(step, 32), 32))
         }
     }
 }
