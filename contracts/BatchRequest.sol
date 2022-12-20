@@ -15,23 +15,20 @@ interface IERC20 {
       deployment bytecode as payload.
  */
 contract BatchRequest {
-
     constructor(uint256 from, uint256 step, address factory) {
-        
         // There is a max number of pool as a too big returned data times out the rpc
         uint256[] memory returnData = new uint256[](step);
 
+        // Query every pool balance
         for(uint256 i = 0; i < step; i++) {
             address curr = IFactory(factory).allPairs(from+i);
             returnData[i] = IERC20(curr).balanceOf(curr);
         }
-    
-        bytes memory data = abi.encode(returnData);
-        
-        // This is the way to return data from a constructor
+
         assembly {
-            return(add(data, 64), add(mul(step, 32), 32))
+            // Return from the start of the array up to 32*nb of elements
+            // and add another 32 words for the size (ie the first data)
+            return(returnData, add(mul(step, 32), 32))
         }
     }
-    
 }

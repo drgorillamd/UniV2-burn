@@ -31,22 +31,36 @@ const main = async function () {
     
     // Iterate by batches
     for(let i=0; i<nb_pair; i+=step) {
-        
-        let inputData = ethers.utils.defaultAbiCoder.encode(["uint256", "uint256", "address"],[i, step, FACTORY]);
-        const payload = bytecode.concat(inputData.slice(2));
-        
-        // Call the deployment transaction
-        const returnedData = await provider.call({data: payload});
-        
-        // Parse the returned value
-        const arr = '0x'+returnedData.slice(66);
-        const [decoded] = ethers.utils.defaultAbiCoder.decode(['uint256['+step+']'], arr);
-        
-        // If a non-null balance is found, print it
-        for(let j=0; j<decoded.length; j++) {
-            if(decoded[j].gt(0)) console.log("FOUND @ "+(i+j));
-        }
-        console.log(i);
+      // Get the bytecode and append the consturcot args
+      let inputData = ethers.utils.defaultAbiCoder.encode(
+        ["uint256", "uint256", "address"],
+        [i, step, FACTORY]
+      );
+      const payload = bytecode.concat(inputData.slice(2));
+
+      // Call the deployment transaction
+      const returnedData = await provider.call({ data: payload });
+
+      //Parse the returned value:
+      // Remove the first word which is the call success (bool success)
+      // and keep '0x' at the start
+      const arr = "0x" + returnedData.slice(66);
+
+      // The uint array length is the number of elements returned minus one
+      // (ie the initial size) - this is for reusability, as step can be used/is known upfront
+      const arrLen = (arr.length - 2 - 64) / 32;
+
+      // Abi decode the array as a fixed length array of uint256
+      const [decoded] = ethers.utils.defaultAbiCoder.decode(
+        ["uint256[" + arrLen + "]"],
+        arr
+      );
+
+      // If a non-null balance is found, print it
+      for (let j = 0; j < decoded.length; j++) {
+        if (decoded[j].gt(0)) console.log("FOUND @ " + (i + j));
+      }
+      console.log(i);
     }
     console.log("done");
 }
