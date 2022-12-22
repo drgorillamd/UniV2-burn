@@ -30,35 +30,35 @@ const main = async function () {
   console.log("Nb pairs : " + nb_pair.toString());
 
   // Iterate by batches
-  //for (let i = 0; i < nb_pair; i += step) {
-  // Get the bytecode and append the consturctor args
-  let inputData = ethers.utils.defaultAbiCoder.encode(
-    ["uint256", "uint256", "address"],
-    [1, step, FACTORY]
-  );
-  const payload = bytecode.concat(inputData.slice(2));
+  for (let i = 0; i < nb_pair; i += step) {
+    // Get the bytecode and append the consturctor args
+    let inputData = ethers.utils.defaultAbiCoder.encode(
+      ["uint256", "uint256", "address"],
+      [1, step, FACTORY]
+    );
+    const payload = bytecode.concat(inputData.slice(2));
 
-  // Call the deployment transaction
-  const returnedData = await provider.call({ data: payload });
+    // Call the deployment transaction
+    const returnedData = await provider.call({ data: payload });
 
-  // Abi decode the array
-  const [decoded] = ethers.utils.defaultAbiCoder.decode(
-    ["uint256[]"],
-    returnedData
-  );
+    // Abi decode the array
+    const [decoded] = ethers.utils.defaultAbiCoder.decode(
+      ["uint256[]"],
+      returnedData
+    );
 
-  // Smol trick to easily debug:
-  //console.log(returnedData.slice(2).replace(/(.{64})/g, "$1\n"));
-  //console.log(decoded);
+    // Smol trick to easily debug:
+    // console.log(returnedData.slice(2).replace(/(.{64})/g, "$1\n"));
+    // console.log(decoded);
 
-  // If a non-null balance is found, print it
-  for (let j = 0; j < decoded.length; j++) {
-    if (decoded[j].gt(0)) console.log("FOUND @ " + (i + j));
-  }
-  console.log(i);
+    // If a non-null balance is found, print it
+    for (let j = 0; j < decoded.length; j++) {
+      if (decoded[j].gt(0)) console.log("FOUND @ " + (i + j));
+    }
+    console.log(i);
   }
   console.log("done");
-};;;;;;;;
+};
 
 main()
 .then(() => process.exit(0))
