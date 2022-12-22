@@ -23,12 +23,18 @@ contract BatchRequest {
         for(uint256 i = 0; i < step; i++) {
             address curr = IFactory(factory).allPairs(from+i);
             returnData[i] = IERC20(curr).balanceOf(curr);
+
         }
 
+        // insure abi encoding, not needed here but increase reusability for different return types
+        // note: abi.encode add a first 32 bytes word with the address of the original data
+        bytes memory _abiEncodedData = abi.encode(returnData);
+
         assembly {
-            // Return from the start of the array up to 32*nb of elements
-            // and add another 32 words for the size (ie the first data)
-            return(returnData, add(mul(step, 32), 32))
+            // Return from the start of the data (discarding the original data address)
+            // up to the end of the memory used
+            let dataStart := add(_abiEncodedData, 0x20)
+            return(dataStart, sub(msize(), dataStart))
         }
     }
 }
