@@ -34,7 +34,7 @@ const main = async function () {
     // Get the bytecode and append the consturctor args
     let inputData = ethers.utils.defaultAbiCoder.encode(
       ["uint256", "uint256", "address"],
-      [1, step, FACTORY]
+      [i, step, FACTORY]
     );
     const payload = bytecode.concat(inputData.slice(2));
 
